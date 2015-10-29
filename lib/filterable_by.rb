@@ -6,6 +6,15 @@ module ActiveRecord
   module FilterableByHelper
     extend ActiveSupport::Concern
 
+    def self.normalize(value)
+      case value
+      when String, Numeric
+        value
+      when Array
+        value.select { |v| normalize(v) }
+      end
+    end
+
     included do
       class_attribute :_filterable_by_scope_options, instance_accessor: false
       self._filterable_by_scope_options = {}
@@ -28,8 +37,8 @@ module ActiveRecord
         _filterable_by_scope_options.each do |name, block|
           next unless hash.key?(name)
 
-          value = hash[name]
-          next unless (value.is_a?(String) && value.present?) || value.is_a?(Numeric)
+          value = FilterableByHelper.normalize(hash[name])
+          next if value.blank?
 
           scope = block.call(scope, value)
         end

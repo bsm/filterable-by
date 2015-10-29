@@ -23,6 +23,7 @@ describe ActiveRecord::FilterableByHelper do
   it 'should generate simple scopes' do
     expect(Comment.filter_by('author_id' => alice.id).pluck(:title)).to match_array(['AA', 'AB'])
     expect(Comment.filter_by('author_id' => bob.id).pluck(:title)).to match_array(['BA', 'BB'])
+    expect(Comment.filter_by('author_id' => [alice.id, '']).pluck(:title)).to match_array(['AA', 'AB'])
 
     expect(Comment.filter_by('post_id' => apost.id).pluck(:title)).to match_array(['AA', 'BA'])
     expect(Comment.filter_by('post_id' => bpost.id).pluck(:title)).to match_array(['AB', 'BB'])
@@ -36,6 +37,9 @@ describe ActiveRecord::FilterableByHelper do
     expect(Comment.filter_by('author_id' => alice.id, 'post_id' => bpost.id).pluck(:title)).to match_array(['AB'])
     expect(Comment.filter_by('author_id' => bob.id, 'post_id' => apost.id).pluck(:title)).to match_array(['BA'])
     expect(Comment.filter_by('author_id' => bob.id, 'post_id' => bpost.id).pluck(:title)).to match_array(['BB'])
+
+    scope = Comment.filter_by('author_id' => [alice.id, bob.id], 'post_id' => bpost.id)
+    expect(scope.pluck(:title)).to match_array(['AB', 'BB'])
   end
 
   it 'should combine with other scopes' do
