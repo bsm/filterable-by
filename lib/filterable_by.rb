@@ -24,7 +24,7 @@ module ActiveRecord
 
       def filterable_by(*names, &block)
         names.each do |name|
-          _filterable_by_scope_options[name.to_s] = block || ->(scope, v) { scope.where(name.to_sym => v) }
+          self._filterable_by_scope_options[name.to_s] = block || ->(scope, v) { scope.where(name.to_sym => v) }
         end
       end
 
