@@ -34,7 +34,7 @@ module ActiveRecord
         scope = all
         return scope unless hash.is_a?(Hash)
 
-        _filterable_by_scope_options.each do |name, block|
+        self._filterable_by_scope_options.each do |name, block|
           next unless hash.key?(name)
 
           value = FilterableByHelper.normalize(hash[name])
