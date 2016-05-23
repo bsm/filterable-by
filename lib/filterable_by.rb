@@ -15,16 +15,12 @@ module ActiveRecord
       end
     end
 
-    included do
-      class_attribute :_filterable_by_scope_options, instance_accessor: false
-      self._filterable_by_scope_options = {}
-    end
-
     module ClassMethods
 
       def filterable_by(*names, &block)
+        @_filterable_by_scope_options ||= {}
         names.each do |name|
-          self._filterable_by_scope_options[name.to_s] = block || ->(scope, v) { scope.where(name.to_sym => v) }
+          @_filterable_by_scope_options[name.to_s] = block || ->(scope, v) { scope.where(name.to_sym => v) }
         end
       end
 
@@ -34,7 +30,7 @@ module ActiveRecord
         scope = all
         return scope unless hash.is_a?(Hash)
 
-        self._filterable_by_scope_options.each do |name, block|
+        @_filterable_by_scope_options.each do |name, block|
           next unless hash.key?(name)
 
           value = FilterableByHelper.normalize(hash[name])

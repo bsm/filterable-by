@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 Gem::Specification.new do |s|
   s.name        = 'filterable-by'
-  s.version     = '0.4.3'
+  s.version     = '0.4.4'
   s.authors     = ['Dimitrij Denissenko']
   s.email       = ['dimitrij@blacksquaremedia.com']
   s.summary     = 'Generate white-listed filter scopes from URL parameter values'
@@ -20,6 +20,5 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'bundler'
   s.add_development_dependency 'rake'
   s.add_development_dependency 'rspec'
-  s.add_development_dependency 'rubocop'
   s.add_development_dependency 'sqlite3'
 end

@@ -23,6 +23,8 @@ end
 
 class Post < ActiveRecord::Base
   belongs_to :author
+
+  filterable_by :author_id
 end
 
 class Comment < ActiveRecord::Base
