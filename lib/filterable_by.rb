@@ -18,9 +18,8 @@ module ActiveRecord
     module ClassMethods
 
       def filterable_by(*names, &block)
-        @_filterable_by_scope_options ||= {}
         names.each do |name|
-          @_filterable_by_scope_options[name.to_s] = block || ->(scope, v) { scope.where(name.to_sym => v) }
+          _filterable_by_scope_options[name.to_s] = block || ->(scope, v) { scope.where(name.to_sym => v) }
         end
       end
 
@@ -30,7 +29,7 @@ module ActiveRecord
         scope = all
         return scope unless hash.is_a?(Hash)
 
-        @_filterable_by_scope_options.each do |name, block|
+        _filterable_by_scope_options.each do |name, block|
           next unless hash.key?(name)
 
           value = FilterableByHelper.normalize(hash[name])
@@ -40,6 +39,12 @@ module ActiveRecord
         end
         scope
       end
+
+      protected
+
+        def _filterable_by_scope_options
+          @_filterable_by_scope_options ||= superclass == Object ? {} : superclass.send(:_filterable_by_scope_options).dup
+        end
 
     end
   end

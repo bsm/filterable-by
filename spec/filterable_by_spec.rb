@@ -8,6 +8,12 @@ describe ActiveRecord::FilterableByHelper do
   let(:apost) { POSTS[:alices] }
   let(:bpost) { POSTS[:bobs] }
 
+  it 'should have config' do
+    expect(Comment.send(:_filterable_by_scope_options).count).to eq(3)
+    expect(Rating.send(:_filterable_by_scope_options).count).to eq(2)
+    expect(Post.send(:_filterable_by_scope_options).count).to eq(1)
+  end
+
   it 'should ignore bad inputs' do
     expect(Comment.filter_by(nil).count).to eq(4)
     expect(Comment.filter_by({}).count).to eq(4)
@@ -27,8 +33,10 @@ describe ActiveRecord::FilterableByHelper do
     expect(Comment.filter_by('post_author_id' => alice.id).pluck(:title)).to match_array(['AA', 'BA'])
     expect(Comment.filter_by('post_author_id' => bob.id).pluck(:title)).to match_array(['AB', 'BB'])
 
+    expect(Rating.filter_by('author_id' => alice.id).count).to eq(0)
+    expect(Rating.filter_by('author_id' => bob.id).count).to eq(1)
+
     expect(Post.filter_by('author_id' => bob.id).count).to eq(1)
-    expect(Post.filter_by('post_id' => bpost.id).count).to eq(2)
   end
 
   it 'should generate combined scopes' do
@@ -44,6 +52,12 @@ describe ActiveRecord::FilterableByHelper do
   it 'should combine with other scopes' do
     scope = Comment.where(author_id: alice.id).filter_by('post_id' => apost.id)
     expect(scope.pluck(:title)).to match_array(['AA'])
+  end
+
+  it 'should ignore invalid scopes' do
+    expect(Comment.filter_by('invalid' => 1).count).to eq(4)
+    expect(Post.filter_by('post_id' => bpost.id).count).to eq(2)
+    expect(Rating.filter_by('post_author_id' => bob.id).count).to eq(1)
   end
 
 end

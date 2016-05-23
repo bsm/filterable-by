@@ -11,8 +11,10 @@ ActiveRecord::Base.connection.instance_eval do
   create_table :posts do |t|
     t.integer :author_id, null: false
   end
-  create_table :comments do |t|
-    t.string  :title, null: false
+  create_table :feedbacks do |t|
+    t.string  :type, null: false
+    t.string  :title
+    t.integer :stars, null: false, default: 0
     t.integer :post_id, null: false
     t.integer :author_id, null: false
   end
@@ -27,14 +29,20 @@ class Post < ActiveRecord::Base
   filterable_by :author_id
 end
 
-class Comment < ActiveRecord::Base
+class Feedback < ActiveRecord::Base
   belongs_to :author
   belongs_to :post
 
   filterable_by :post_id, :author_id
+end
+
+class Comment < Feedback
   filterable_by :post_author_id do |scope, value|
     scope.joins(:post).where(Post.arel_table[:author_id].eq(value))
   end
+end
+
+class Rating < Feedback
 end
 
 AUTHORS = {
@@ -52,4 +60,5 @@ COMMENTS = {
   bob_on_alice:   Comment.create!(title: 'BA', post_id: POSTS[:alices].id, author_id: AUTHORS[:bob].id),
   alice_on_bob:   Comment.create!(title: 'AB', post_id: POSTS[:bobs].id, author_id: AUTHORS[:alice].id),
   bob_on_bob:     Comment.create!(title: 'BB', post_id: POSTS[:bobs].id, author_id: AUTHORS[:bob].id),
+  boa_rating:     Rating.create!(stars: 5, post_id: POSTS[:alices].id, author_id: AUTHORS[:bob].id),
 }
