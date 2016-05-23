@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    filterable-by (0.4.5)
+    filterable-by (0.4.6)
       activerecord
       activesupport
 
