@@ -3,9 +3,7 @@ require 'active_support/concern'
 require 'set'
 
 module ActiveRecord
-  module FilterableByHelper
-    extend ActiveSupport::Concern
-
+  module FilterableBy
     def self.normalize(value)
       case value
       when String, Numeric
@@ -16,10 +14,20 @@ module ActiveRecord
     end
 
     module ClassMethods
+      def self.extended(base) # :nodoc:
+        base.class_attribute :_filterable_by_config, instance_accessor: false, instance_predicate: false
+        base._filterable_by_config = {}
+        super
+      end
+
+      def inherited(base) # :nodoc:
+        base._filterable_by_config = _filterable_by_config.deep_dup
+        super
+      end
 
       def filterable_by(*names, &block)
         names.each do |name|
-          _filterable_by_scope_options[name.to_s] = block || ->(scope, v) { scope.where(name.to_sym => v) }
+          _filterable_by_config[name.to_s] = block || ->(scope, v) { scope.where(name.to_sym => v) }
         end
       end
 
@@ -29,27 +37,20 @@ module ActiveRecord
         scope = all
         return scope unless hash.is_a?(Hash)
 
-        _filterable_by_scope_options.each do |name, block|
+        _filterable_by_config.each do |name, block|
           next unless hash.key?(name)
 
-          value = FilterableByHelper.normalize(hash[name])
+          value = FilterableBy.normalize(hash[name])
           next if value.blank?
 
           scope = block.call(scope, value)
         end
         scope
       end
-
-      protected
-
-        def _filterable_by_scope_options
-          @_filterable_by_scope_options ||= superclass == Object ? {} : superclass.send(:_filterable_by_scope_options).dup
-        end
-
     end
   end
 
   class Base
-    include FilterableByHelper
+    extend FilterableBy::ClassMethods
   end
 end
