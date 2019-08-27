@@ -1,7 +1,6 @@
-
 Gem::Specification.new do |s|
   s.name        = 'filterable-by'
-  s.version     = '0.4.7'
+  s.version     = '0.5.0'
   s.authors     = ['Dimitrij Denissenko']
   s.email       = ['dimitrij@blacksquaremedia.com']
   s.summary     = 'Generate white-listed filter scopes from URL parameter values'
@@ -9,10 +8,10 @@ Gem::Specification.new do |s|
   s.homepage    = 'https://github.com/bsm/filterable-by'
   s.license     = 'MIT'
 
-  s.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^spec/}) }
+  s.files         = `git ls-files -z`.split("\x0").reject {|f| f.match(%r{^spec/}) }
   s.test_files    = `git ls-files -z -- spec/*`.split("\x0")
   s.require_paths = ['lib']
-  s.required_ruby_version = '>= 2.2'
+  s.required_ruby_version = '>= 2.5'
 
   s.add_dependency 'activerecord'
   s.add_dependency 'activesupport'

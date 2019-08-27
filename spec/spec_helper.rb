@@ -47,18 +47,18 @@ end
 
 AUTHORS = {
   alice: Author.create!,
-  bob:   Author.create!,
+  bob: Author.create!,
 }.freeze
 
 POSTS = {
   alices: Post.create!(author_id: AUTHORS[:alice].id),
-  bobs:   Post.create!(author_id: AUTHORS[:bob].id),
+  bobs: Post.create!(author_id: AUTHORS[:bob].id),
 }.freeze
 
 COMMENTS = {
   alice_on_alice: Comment.create!(title: 'AA', post_id: POSTS[:alices].id, author_id: AUTHORS[:alice].id),
-  bob_on_alice:   Comment.create!(title: 'BA', post_id: POSTS[:alices].id, author_id: AUTHORS[:bob].id),
-  alice_on_bob:   Comment.create!(title: 'AB', post_id: POSTS[:bobs].id, author_id: AUTHORS[:alice].id),
-  bob_on_bob:     Comment.create!(title: 'BB', post_id: POSTS[:bobs].id, author_id: AUTHORS[:bob].id),
-  boa_rating:     Rating.create!(stars: 5, post_id: POSTS[:alices].id, author_id: AUTHORS[:bob].id),
+  bob_on_alice: Comment.create!(title: 'BA', post_id: POSTS[:alices].id, author_id: AUTHORS[:bob].id),
+  alice_on_bob: Comment.create!(title: 'AB', post_id: POSTS[:bobs].id, author_id: AUTHORS[:alice].id),
+  bob_on_bob: Comment.create!(title: 'BB', post_id: POSTS[:bobs].id, author_id: AUTHORS[:bob].id),
+  boa_rating: Rating.create!(stars: 5, post_id: POSTS[:alices].id, author_id: AUTHORS[:bob].id),
 }.freeze

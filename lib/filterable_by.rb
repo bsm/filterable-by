@@ -9,7 +9,7 @@ module ActiveRecord
       when String, Numeric
         value
       when Array
-        value.select { |v| normalize(v) }
+        value.select {|v| normalize(v) }
       end
     end
 
