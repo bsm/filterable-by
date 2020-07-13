@@ -15,7 +15,7 @@ describe ActiveRecord::FilterableBy do
 
   it 'should ignore bad inputs' do
     expect(Comment.filter_by(nil).count).to eq(4)
-    expect(Comment.filter_by({}).count).to eq(4)
+    expect(Comment.filter_by.count).to eq(4)
 
     expect(Comment.filter_by('author_id' => '').count).to eq(4)
     expect(Comment.filter_by('author_id' => []).count).to eq(4)
@@ -51,6 +51,17 @@ describe ActiveRecord::FilterableBy do
   it 'should combine with other scopes' do
     scope = Comment.where(author_id: alice.id).filter_by('post_id' => apost.id)
     expect(scope.pluck(:title)).to match_array(['AA'])
+  end
+
+  it 'should allow custom options' do
+    scope = Author.filter_by({ 'only' => 'me' }, id: alice.id)
+    expect(scope.to_a).to match_array([alice])
+
+    scope = Author.filter_by({ 'only' => '??' }, id: alice.id)
+    expect(scope.to_a).to match_array([alice, bob])
+
+    scope = Author.filter_by({ 'only' => 'me' })
+    expect(scope.to_a).to match_array([alice, bob])
   end
 
   it 'should ignore invalid scopes' do

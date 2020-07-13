@@ -33,7 +33,11 @@ module ActiveRecord
 
       # @param [Hash] hash the filter params
       # @return [ActiveRecord::Relation] the scoped relation
-      def filter_by(hash)
+      def filter_by(hash = nil, **opts)
+        if hash.nil?
+          hash = opts
+          opts = {}
+        end
         scope = all
         return scope unless hash.is_a?(Hash)
 
@@ -43,8 +47,9 @@ module ActiveRecord
           value = FilterableBy.normalize(hash[name])
           next if value.blank?
 
-          scope = block.call(scope, value)
+          scope = block.call(scope, value, **opts)
         end
+
         scope
       end
     end
