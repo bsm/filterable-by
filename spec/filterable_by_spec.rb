@@ -10,12 +10,14 @@ describe ActiveRecord::FilterableBy do
   it 'should have config' do
     expect(Comment.send(:_filterable_by_config).count).to eq(3)
     expect(Rating.send(:_filterable_by_config).count).to eq(2)
-    expect(Post.send(:_filterable_by_config).count).to eq(1)
+    expect(Post.send(:_filterable_by_config).count).to eq(2)
   end
 
   it 'should ignore bad inputs' do
+    expect(Comment.filter_by.count).to eq(4)
     expect(Comment.filter_by(nil).count).to eq(4)
-    expect(Comment.filter_by({}).count).to eq(4)
+    expect(Comment.filter_by(nil, extra: true).count).to eq(4)
+    expect(Comment.filter_by('bad').count).to eq(4)
 
     expect(Comment.filter_by('author_id' => '').count).to eq(4)
     expect(Comment.filter_by('author_id' => []).count).to eq(4)
@@ -51,6 +53,23 @@ describe ActiveRecord::FilterableBy do
   it 'should combine with other scopes' do
     scope = Comment.where(author_id: alice.id).filter_by('post_id' => apost.id)
     expect(scope.pluck(:title)).to match_array(['AA'])
+  end
+
+  it 'should allow custom options' do
+    scope = Post.filter_by({ 'only' => 'me' }, user_id: alice.id)
+    expect(scope).to match_array([apost])
+
+    scope = Post.filter_by({ 'only' => '??' }, user_id: alice.id)
+    expect(scope.count).to eq(2)
+
+    scope = Post.filter_by({ 'only' => 'me' })
+    expect(scope.count).to eq(0)
+  end
+
+  it 'should allow custom options from params' do
+    filter = { 'only' => 'me' }
+    expect(Post.filter_by(filter, user_id: alice.id)).to match_array([apost])
+    expect(Post.filter_by(filter).count).to eq(0)
   end
 
   it 'should ignore invalid scopes' do

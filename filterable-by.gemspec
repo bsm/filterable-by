@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = 'filterable-by'
-  s.version     = '0.5.0'
+  s.version     = '0.5.1'
   s.authors     = ['Dimitrij Denissenko']
   s.email       = ['dimitrij@blacksquaremedia.com']
   s.summary     = 'Generate white-listed filter scopes from URL parameter values'

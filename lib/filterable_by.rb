@@ -27,13 +27,17 @@ module ActiveRecord
 
       def filterable_by(*names, &block)
         names.each do |name|
-          _filterable_by_config[name.to_s] = block || ->(scope, v) { scope.where(name.to_sym => v) }
+          _filterable_by_config[name.to_s] = block || ->(scope, value, **) { scope.where(name.to_sym => value) }
         end
       end
 
       # @param [Hash] hash the filter params
       # @return [ActiveRecord::Relation] the scoped relation
-      def filter_by(hash)
+      def filter_by(hash = nil, **opts)
+        if hash.nil?
+          hash = opts
+          opts = {}
+        end
         scope = all
         return scope unless hash.is_a?(Hash)
 
@@ -43,9 +47,10 @@ module ActiveRecord
           value = FilterableBy.normalize(hash[name])
           next if value.blank?
 
-          scope = block.call(scope, value)
+          scope = block.call(scope, value, **opts)
         end
-        scope
+
+        scope || none
       end
     end
   end

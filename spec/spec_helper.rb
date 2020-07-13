@@ -2,7 +2,7 @@ ENV['RACK_ENV'] ||= 'test'
 require 'filterable-by'
 require 'rspec'
 
-ActiveRecord::Base.configurations['test'] = { 'adapter' => 'sqlite3', 'database' => ':memory:' }
+ActiveRecord::Base.configurations = { 'test' => { 'adapter' => 'sqlite3', 'database' => ':memory:' } }
 ActiveRecord::Base.establish_connection :test
 
 ActiveRecord::Base.connection.instance_eval do
@@ -27,6 +27,14 @@ class Post < ActiveRecord::Base
   belongs_to :author
 
   filterable_by :author_id
+  filterable_by :only do |scope, value, **opts|
+    case value
+    when 'me'
+      scope.where(author_id: opts[:user_id]) if opts[:user_id]
+    else
+      scope
+    end
+  end
 end
 
 class Feedback < ActiveRecord::Base
