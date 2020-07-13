@@ -27,7 +27,7 @@ module ActiveRecord
 
       def filterable_by(*names, &block)
         names.each do |name|
-          _filterable_by_config[name.to_s] = block || ->(scope, v) { scope.where(name.to_sym => v) }
+          _filterable_by_config[name.to_s] = block || ->(scope, value, **) { scope.where(name.to_sym => value) }
         end
       end
 
@@ -50,7 +50,7 @@ module ActiveRecord
           scope = block.call(scope, value, **opts)
         end
 
-        scope
+        scope || none
       end
     end
   end

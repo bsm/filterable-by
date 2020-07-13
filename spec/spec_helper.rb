@@ -21,19 +21,20 @@ ActiveRecord::Base.connection.instance_eval do
 end
 
 class Author < ActiveRecord::Base
-  filterable_by :only do |scope, value, **opts|
-    if value == 'me' && opts[:id].present?
-      scope.where(id: opts[:id])
-    else
-      scope
-    end
-  end
 end
 
 class Post < ActiveRecord::Base
   belongs_to :author
 
   filterable_by :author_id
+  filterable_by :only do |scope, value, **opts|
+    case value
+    when 'me'
+      scope.where(author_id: opts[:user_id]) if opts[:user_id]
+    else
+      scope
+    end
+  end
 end
 
 class Feedback < ActiveRecord::Base
