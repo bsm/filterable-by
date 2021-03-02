@@ -7,6 +7,7 @@ ActiveRecord::Base.establish_connection :test
 
 ActiveRecord::Base.connection.instance_eval do
   create_table :authors do |_|
+    # no columns
   end
   create_table :posts do |t|
     t.integer :author_id, null: false
