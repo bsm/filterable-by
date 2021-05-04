@@ -1,5 +1,7 @@
 # Filterable By
 
+[![Test](https://github.com/bsm/filterable-by/actions/workflows/test.yml/badge.svg)](https://github.com/bsm/filterable-by/actions/workflows/test.yml)
+
 ActiveRecord plugin to parse e.g. a `filter` query parameter apply scopes. Useful for [JSON-API][jsonapi] compatibility.
 
 [jsonapi]: http://jsonapi.org/format/#fetching-filtering
