@@ -31,7 +31,7 @@ module ActiveRecord
         end
       end
 
-      # @param [Hash] hash the filter params
+      # @param [Hash|ActionController::Parameters] the filter params
       # @return [ActiveRecord::Relation] the scoped relation
       def filter_by(hash = nil, **opts)
         if hash.nil?
@@ -39,7 +39,7 @@ module ActiveRecord
           opts = {}
         end
         scope = all
-        return scope unless hash.is_a?(Hash)
+        return scope unless hash.respond_to?(:key?) && hash.respond_to?(:[])
 
         _filterable_by_config.each do |name, block|
           next unless hash.key?(name)

@@ -21,4 +21,5 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'rspec'
   s.add_development_dependency 'rubocop-bsm'
   s.add_development_dependency 'sqlite3'
+  s.metadata['rubygems_mfa_required'] = 'true'
 end
