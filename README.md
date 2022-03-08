@@ -17,15 +17,15 @@ class Comment < ActiveRecord::Base
   belongs_to :post
 
   filterable_by :post_id, :user_id
-  filterable_by :post_author_id do |scope, value|
-    scope.joins(:posts).where(:'posts.author_id' => value)
+  filterable_by :post_author_id do |value|
+    joins(:posts).where(:'posts.author_id' => value)
   end
-  filterable_by :only do |scope, value, **opts|
+  filterable_by :only do |value, **opts|
     case value
     when 'mine'
-      scope.where(user_id: opts[:user_id]) if opts[:user_id]
+      where(user_id: opts[:user_id]) if opts[:user_id]
     else
-      scope
+      all
     end
   end
 end
@@ -38,6 +38,12 @@ Simple use cases:
 ```ruby
 Comment.filter_by({ 'post_id' => '1' })
 # => WHERE post_id = 1
+
+Comment.filter_by({ 'post_id' => ['1', '2'] })
+# => WHERE post_id IN (1, 2)
+
+Comment.filter_by({ 'post_id_not' => '3' })
+# => WHERE post_id != 3
 
 Comment.filter_by({ 'user_id' => '2', 'ignored' => '3' })
 # => WHERE user_id = 2

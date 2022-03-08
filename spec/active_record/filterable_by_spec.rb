@@ -8,8 +8,8 @@ describe ActiveRecord::FilterableBy do
   let(:bpost) { POSTS[:bobs] }
 
   it 'has config' do
-    expect(Comment.send(:_filterable_by_config).count).to eq(3)
-    expect(Rating.send(:_filterable_by_config).count).to eq(2)
+    expect(Comment.send(:_filterable_by_config).count).to eq(5)
+    expect(Rating.send(:_filterable_by_config).count).to eq(4)
     expect(Post.send(:_filterable_by_config).count).to eq(2)
   end
 
@@ -50,6 +50,14 @@ describe ActiveRecord::FilterableBy do
     expect(scope.pluck(:title)).to match_array(%w[AB BB])
   end
 
+  it 'generates negated scopes' do
+    expect(Comment.filter_by('author_id_not' => alice.id).pluck(:title)).to match_array(%w[BA BB])
+    expect(Comment.filter_by('author_id_not' => [alice.id, bob.id]).pluck(:title)).to match_array(%w[])
+    expect(Comment.filter_by('post_id_not' => apost.id).pluck(:title)).to match_array(%w[AB BB])
+    expect(Comment.filter_by('post_author_id_not' => alice.id).pluck(:title)).to match_array(%w[AB BB])
+    expect(Comment.filter_by('author_id' => bob.id, 'post_id_not' => bpost.id).pluck(:title)).to match_array(['BA'])
+  end
+
   it 'combines with other scopes' do
     scope = Comment.where(author_id: alice.id).filter_by('post_id' => apost.id)
     expect(scope.pluck(:title)).to match_array(['AA'])
@@ -76,5 +84,10 @@ describe ActiveRecord::FilterableBy do
     expect(Comment.filter_by('invalid' => 1).count).to eq(4)
     expect(Post.filter_by('post_id' => bpost.id).count).to eq(2)
     expect(Rating.filter_by('post_author_id' => bob.id).count).to eq(1)
+  end
+
+  it 'supports deprecated scoping' do
+    expect(Comment.filter_by('deprecated' => alice.id).pluck(:title)).to match_array(%w[AA AB])
+    expect(Comment.filter_by('deprecated_with_opts' => alice.id).pluck(:title)).to match_array(%w[AA AB])
   end
 end

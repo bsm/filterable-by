@@ -13,6 +13,28 @@ module ActiveRecord
       end
     end
 
+    def self.merge(scope, unscoped, hash, name, **opts, &block)
+      key = name
+      positive = normalize(hash[key]) if hash.key?(key)
+      if positive.present?
+        sub = block.arity == 2 ? yield(unscoped, positive, **opts) : yield(positive, **opts)
+        return nil unless sub
+
+        scope = scope.merge(sub)
+      end
+
+      key = "#{name}_not"
+      negative = normalize(hash[key]) if hash.key?(key)
+      if negative.present?
+        sub = block.arity == 2 ? yield(unscoped, negative, **opts) : yield(negative, **opts)
+        return nil unless sub
+
+        scope = scope.merge(sub.invert_where)
+      end
+
+      scope
+    end
+
     module ClassMethods
       def self.extended(base) # :nodoc:
         base.class_attribute :_filterable_by_config, instance_accessor: false, instance_predicate: false
@@ -26,8 +48,12 @@ module ActiveRecord
       end
 
       def filterable_by(*names, &block)
+        if block && block.arity > 1
+          ActiveSupport::Deprecation.warn('using scope in filterable_by blocks is deprecated. Please use filterable_by(:x) {|val| where(field: val) } instead.')
+        end
+
         names.each do |name|
-          _filterable_by_config[name.to_s] = block || ->(scope, value, **) { scope.where(name.to_sym => value) }
+          _filterable_by_config[name.to_s] = block || ->(value, **) { where(name.to_sym => value) }
         end
       end
 
@@ -38,16 +64,13 @@ module ActiveRecord
           hash = opts
           opts = {}
         end
+
         scope = all
         return scope unless hash.respond_to?(:key?) && hash.respond_to?(:[])
 
         _filterable_by_config.each do |name, block|
-          next unless hash.key?(name)
-
-          value = FilterableBy.normalize(hash[name])
-          next if value.blank?
-
-          scope = block.call(scope, value, **opts)
+          scope = FilterableBy.merge(scope, unscoped, hash, name, **opts, &block)
+          break unless scope
         end
 
         scope || none
