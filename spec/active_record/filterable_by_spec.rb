@@ -89,5 +89,6 @@ describe ActiveRecord::FilterableBy do
   it 'supports deprecated scoping' do
     expect(Comment.filter_by('deprecated' => alice.id).pluck(:title)).to match_array(%w[AA AB])
     expect(Comment.filter_by('deprecated_with_opts' => alice.id).pluck(:title)).to match_array(%w[AA AB])
+    expect(Comment.filter_by('deprecated_not' => alice.id).pluck(:title)).to match_array(%w[BA BB])
   end
 end
