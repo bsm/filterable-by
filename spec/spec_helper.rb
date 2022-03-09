@@ -28,12 +28,12 @@ class Post < ActiveRecord::Base
   belongs_to :author
 
   filterable_by :author_id
-  filterable_by :only do |scope, value, **opts|
+  filterable_by :only do |value, **opts|
     case value
     when 'me'
-      scope.where(author_id: opts[:user_id]) if opts[:user_id]
+      where(author_id: opts[:user_id]) if opts[:user_id]
     else
-      scope
+      all
     end
   end
 end
@@ -43,11 +43,20 @@ class Feedback < ActiveRecord::Base
   belongs_to :post
 
   filterable_by :post_id, :author_id
+
+  ActiveSupport::Deprecation.silence do
+    filterable_by :deprecated do |scope, value|
+      scope.where(author_id: value)
+    end
+    filterable_by :deprecated_with_opts do |scope, value, **_opts|
+      scope.where(author_id: value)
+    end
+  end
 end
 
 class Comment < Feedback
-  filterable_by :post_author_id do |scope, value|
-    scope.joins(:post).where(Post.arel_table[:author_id].eq(value))
+  filterable_by :post_author_id do |value|
+    joins(:post).where(Post.arel_table[:author_id].eq(value))
   end
 end
 
