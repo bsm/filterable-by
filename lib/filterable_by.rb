@@ -29,7 +29,12 @@ module ActiveRecord
         sub = block.arity == 2 ? yield(unscoped, negative, **opts) : yield(negative, **opts)
         return nil unless sub
 
-        scope = scope.merge(sub.invert_where)
+        if sub.respond_to?(:invert_where)
+          sub = sub.invert_where
+        else
+          sub.where_clause = sub.where_clause.invert
+        end
+        scope = scope.merge(sub)
       end
 
       scope
