@@ -61,6 +61,12 @@ describe ActiveRecord::FilterableBy do
   it 'combines with other scopes' do
     scope = Comment.where(author_id: alice.id).filter_by('post_id' => apost.id)
     expect(scope.pluck(:title)).to match_array(['AA'])
+
+    expect(alice.posts.filter_by('post_id' => apost.id).count).to be(1)
+    expect(alice.posts.filter_by('author_id' => alice.id).count).to be(1)
+    expect(alice.posts.filter_by('author_id_not' => bob.id).count).to be(1)
+    expect(alice.posts.filter_by('author_id' => bob.id).count).to be_zero
+    expect(alice.posts.filter_by('author_id_not' => alice.id).count).to be_zero
   end
 
   it 'allows custom options' do
