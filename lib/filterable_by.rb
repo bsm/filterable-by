@@ -58,7 +58,7 @@ module ActiveRecord
         end
 
         names.each do |name|
-          _filterable_by_config[name.to_s] = block || ->(value, **) { where(name.to_sym => value) }
+          _filterable_by_config[name.to_s] = block
         end
       end
 
@@ -74,6 +74,7 @@ module ActiveRecord
         return scope unless hash.respond_to?(:key?) && hash.respond_to?(:[])
 
         _filterable_by_config.each do |name, block|
+          block = ->(value, **) { where(name.to_sym => value) } if block.nil?
           scope = FilterableBy.merge(scope, unscoped, hash, name, **opts, &block)
           break unless scope
         end

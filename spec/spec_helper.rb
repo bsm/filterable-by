@@ -25,10 +25,14 @@ class Author < ActiveRecord::Base
   has_many :posts
 end
 
-class Post < ActiveRecord::Base
+class AbstractPost < ActiveRecord::Base
+  self.abstract_class = true
+  filterable_by :author_id
+end
+
+class Post < AbstractPost
   belongs_to :author
 
-  filterable_by :author_id
   filterable_by :only do |value, **opts|
     case value
     when 'me'
