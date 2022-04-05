@@ -97,4 +97,8 @@ describe ActiveRecord::FilterableBy do
     expect(Comment.filter_by('deprecated_with_opts' => alice.id).pluck(:title)).to match_array(%w[AA AB])
     expect(Comment.filter_by('deprecated_not' => alice.id).pluck(:title)).to match_array(%w[BA BB])
   end
+
+  it 'supports abstract classes' do
+    expect(Post.filter_by('author_id' => bob.id).count).to eq(1)
+  end
 end
