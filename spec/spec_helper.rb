@@ -27,12 +27,8 @@ end
 
 class AbstractPost < ActiveRecord::Base
   self.abstract_class = true
+
   filterable_by :author_id
-end
-
-class Post < AbstractPost
-  belongs_to :author
-
   filterable_by :only do |value, **opts|
     case value
     when 'me'
@@ -41,6 +37,10 @@ class Post < AbstractPost
       all
     end
   end
+end
+
+class Post < AbstractPost
+  belongs_to :author
 end
 
 class Feedback < ActiveRecord::Base
