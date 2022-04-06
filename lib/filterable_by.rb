@@ -4,40 +4,56 @@ require 'set'
 
 module ActiveRecord
   module FilterableBy
-    def self.normalize(value)
-      case value
-      when String, Numeric
-        value
-      when Array
-        value.select {|v| normalize(v) }
-      end
-    end
-
-    def self.merge(scope, unscoped, hash, name, **opts, &block)
-      key = name
-      positive = normalize(hash[key]) if hash.key?(key)
-      if positive.present?
-        sub = block.arity == 2 ? yield(unscoped, positive, **opts) : yield(positive, **opts)
-        return nil unless sub
-
-        scope = scope.merge(sub)
-      end
-
-      key = "#{name}_not"
-      negative = normalize(hash[key]) if hash.key?(key)
-      if negative.present?
-        sub = block.arity == 2 ? yield(unscoped, negative, **opts) : yield(negative, **opts)
-        return nil unless sub
-
-        if sub.respond_to?(:invert_where)
-          sub = sub.invert_where
-        else
-          sub.where_clause = sub.where_clause.invert
+    class << self
+      def normalize(value)
+        case value
+        when String, Numeric
+          value
+        when Array
+          value.select {|v| normalize(v) }
         end
-        scope = scope.merge(sub)
       end
 
-      scope
+      def merge(scope, unscoped, hash, name, **opts, &block)
+        key = name
+        positive = normalize(hash[key]) if hash.key?(key)
+        if positive.present?
+          sub = eval_scope(scope, unscoped, positive, **opts, &block)
+          return nil unless sub
+
+          scope = scope.merge(sub)
+        end
+
+        key = "#{name}_not"
+        negative = normalize(hash[key]) if hash.key?(key)
+        if negative.present?
+          sub = eval_scope(scope, unscoped, negative, **opts, &block)
+          return nil unless sub
+
+          scope = scope.merge(invert_where(sub))
+        end
+
+        scope
+      end
+
+      private
+
+      def eval_scope(scope, unscoped, value, **opts, &block)
+        if block.arity == 2
+          scope.instance_exec(unscoped, value, **opts, &block)
+        else
+          scope.instance_exec(value, **opts, &block)
+        end
+      end
+
+      def invert_where(scope)
+        if scope.respond_to?(:invert_where!)
+          scope.invert_where!
+        else
+          scope.where_clause = scope.where_clause.invert
+        end
+        scope
+      end
     end
 
     module ClassMethods
@@ -58,7 +74,7 @@ module ActiveRecord
         end
 
         names.each do |name|
-          _filterable_by_config[name.to_s] = block
+          _filterable_by_config[name.to_s] = block || ->(value, **) { where(name.to_sym => value) }
         end
       end
 
@@ -74,7 +90,6 @@ module ActiveRecord
         return scope unless hash.respond_to?(:key?) && hash.respond_to?(:[])
 
         _filterable_by_config.each do |name, block|
-          block = ->(value, **) { where(name.to_sym => value) } if block.nil?
           scope = FilterableBy.merge(scope, unscoped, hash, name, **opts, &block)
           break unless scope
         end
