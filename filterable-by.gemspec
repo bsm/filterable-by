@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = 'filterable-by'
-  s.version     = '0.6.4'
+  s.version     = '0.6.5'
   s.authors     = ['Dimitrij Denissenko']
   s.email       = ['dimitrij@blacksquaremedia.com']
   s.summary     = 'Generate white-listed filter scopes from URL parameter values'
@@ -15,6 +15,5 @@ Gem::Specification.new do |s|
   s.add_dependency 'activerecord'
   s.add_dependency 'activesupport'
 
-  s.add_development_dependency 'bundler'
   s.metadata['rubygems_mfa_required'] = 'true'
 end
