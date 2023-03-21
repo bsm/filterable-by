@@ -41,10 +41,10 @@ describe ActiveRecord::FilterableBy do
   end
 
   it 'generates combined scopes' do
-    expect(Comment.filter_by('author_id' => alice.id, 'post_id' => apost.id).pluck(:title)).to match_array(['AA'])
-    expect(Comment.filter_by('author_id' => alice.id, 'post_id' => bpost.id).pluck(:title)).to match_array(['AB'])
-    expect(Comment.filter_by('author_id' => bob.id, 'post_id' => apost.id).pluck(:title)).to match_array(['BA'])
-    expect(Comment.filter_by('author_id' => bob.id, 'post_id' => bpost.id).pluck(:title)).to match_array(['BB'])
+    expect(Comment.filter_by('author_id' => alice.id, 'post_id' => apost.id).pluck(:title)).to contain_exactly('AA')
+    expect(Comment.filter_by('author_id' => alice.id, 'post_id' => bpost.id).pluck(:title)).to contain_exactly('AB')
+    expect(Comment.filter_by('author_id' => bob.id, 'post_id' => apost.id).pluck(:title)).to contain_exactly('BA')
+    expect(Comment.filter_by('author_id' => bob.id, 'post_id' => bpost.id).pluck(:title)).to contain_exactly('BB')
 
     scope = Comment.filter_by('author_id' => [alice.id, bob.id], 'post_id' => bpost.id)
     expect(scope.pluck(:title)).to match_array(%w[AB BB])
@@ -55,12 +55,12 @@ describe ActiveRecord::FilterableBy do
     expect(Comment.filter_by('author_id_not' => [alice.id, bob.id]).pluck(:title)).to match_array(%w[])
     expect(Comment.filter_by('post_id_not' => apost.id).pluck(:title)).to match_array(%w[AB BB])
     expect(Comment.filter_by('post_author_id_not' => alice.id).pluck(:title)).to match_array(%w[AB BB])
-    expect(Comment.filter_by('author_id' => bob.id, 'post_id_not' => bpost.id).pluck(:title)).to match_array(['BA'])
+    expect(Comment.filter_by('author_id' => bob.id, 'post_id_not' => bpost.id).pluck(:title)).to contain_exactly('BA')
   end
 
   it 'combines with other scopes' do
     scope = Comment.where(author_id: alice.id).filter_by('post_id' => apost.id)
-    expect(scope.pluck(:title)).to match_array(['AA'])
+    expect(scope.pluck(:title)).to contain_exactly('AA')
 
     expect(alice.posts.filter_by('post_id' => apost.id).count).to be(1)
     expect(alice.posts.filter_by('author_id' => alice.id).count).to be(1)
@@ -71,7 +71,7 @@ describe ActiveRecord::FilterableBy do
 
   it 'allows custom options' do
     scope = Post.filter_by({ 'only' => 'me' }, user_id: alice.id)
-    expect(scope).to match_array([apost])
+    expect(scope).to contain_exactly(apost)
 
     scope = Post.filter_by({ 'only' => '??' }, user_id: alice.id)
     expect(scope.count).to eq(2)
@@ -82,7 +82,7 @@ describe ActiveRecord::FilterableBy do
 
   it 'allows custom options from params' do
     filter = { 'only' => 'me' }
-    expect(Post.filter_by(filter, user_id: alice.id)).to match_array([apost])
+    expect(Post.filter_by(filter, user_id: alice.id)).to contain_exactly(apost)
     expect(Post.filter_by(filter).count).to eq(0)
   end
 
