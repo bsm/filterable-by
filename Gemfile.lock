@@ -84,7 +84,6 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  bundler
   filterable-by!
   rake
   rspec

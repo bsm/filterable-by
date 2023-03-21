@@ -85,7 +85,6 @@ PLATFORMS
 
 DEPENDENCIES
   activerecord (~> 6.1)
-  bundler
   filterable-by!
   rake
   rspec
