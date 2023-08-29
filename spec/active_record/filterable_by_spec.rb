@@ -52,7 +52,7 @@ describe ActiveRecord::FilterableBy do
 
   it 'generates negated scopes' do
     expect(Comment.filter_by('author_id_not' => alice.id).pluck(:title)).to match_array(%w[BA BB])
-    expect(Comment.filter_by('author_id_not' => [alice.id, bob.id]).pluck(:title)).to match_array(%w[])
+    expect(Comment.filter_by('author_id_not' => [alice.id, bob.id]).pluck(:title)).to be_empty
     expect(Comment.filter_by('post_id_not' => apost.id).pluck(:title)).to match_array(%w[AB BB])
     expect(Comment.filter_by('post_author_id_not' => alice.id).pluck(:title)).to match_array(%w[AB BB])
     expect(Comment.filter_by('author_id' => bob.id, 'post_id_not' => bpost.id).pluck(:title)).to contain_exactly('BA')
